@@ -11,5 +11,5 @@ SCL -  A5
 
 # Dependencies
 
-Adafruit Sensor library
+Adafruit Sensor library  
 Adafruit BMP 280 library
