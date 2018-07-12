@@ -4,7 +4,7 @@
 #define _MPU9255_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
+	#include "Arduino.h"
 #else
 	#include "WProgram.h"
 #endif
@@ -51,18 +51,14 @@
 #define YA_OFFSET_L 0x7B
 #define ZA_OFFSET_H 0x7D
 #define ZA_OFFSET_L 0x7E
+#define MPU9250_ADDRESS_ADO 0x69
+#define MPU9250_ADDRESS_AD1 0x68
 
-
-#define ADO 0
-#if ADO
-#define MPU9250_ADDRESS 0x69
-#else
-#define MPU9250_ADDRESS 0x68
-#define AK8963_ADDRESS 0x0C
-#endif
 class MPU9255 {
+private:
+		uint8_t MPU9250_Address;
 public:
-	MPU9255::MPU9255(int interruptPin, int doklG, int doklA, int doklM);
+	MPU9255::MPU9255(int interruptPin, int doklG, int doklA, int doklM, int ADCx = MPU9250_ADDRESS_ADO);
 
 	void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 	uint8_t readByte(uint8_t address, uint8_t subAddress);
@@ -78,4 +74,3 @@ public:
 	void initMPU9250();
 };
 #endif
-

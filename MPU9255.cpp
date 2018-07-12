@@ -1,6 +1,6 @@
-// 
-// 
-// 
+//
+//
+//
 
 #include "MPU9255.h"
 #include <Wire.h>
@@ -34,8 +34,10 @@ int myLed = 13;
 float SelfTest[6];
 ///
 
-MPU9255::MPU9255(int interruptPin, int doklG, int doklA, int doklM)
+MPU9255::MPU9255(int interruptPin, int doklG, int doklA, int doklM, int ADCx)
 {
+	MPU9250_Address = ADCx;
+	
 	/*Gscale = GFS_250DPS;
 	Ascale = AFS_2G;
 	Mscale = MFS_16BITS;*/
@@ -55,7 +57,7 @@ MPU9255::MPU9255(int interruptPin, int doklG, int doklA, int doklM)
 	case 16:Ascale = AFS_16G;  break;
 	default:Ascale = AFS_2G;  break;
 	}
-	switch (doklM) 
+	switch (doklM)
 	{
 	case 6: Mscale = MFS_14BITS; break;
 	case 15: Mscale = MFS_16BITS; break;
@@ -104,8 +106,8 @@ void MPU9255::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint
 void  MPU9255::readAccelData(int16_t * destination)
 {
 	uint8_t rawData[6];
-	
-	readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
+
+	readBytes(MPU9250_Address, ACCEL_XOUT_H, 6, &rawData[0]);
 	destination[0] = (((int16_t)rawData[0] << 8) | rawData[1]);
 	destination[1] = (((int16_t)rawData[2] << 8) | rawData[3]);
 	destination[2] = (((int16_t)rawData[4] << 8) | rawData[5]);
@@ -115,8 +117,8 @@ void  MPU9255::readAccelData(int16_t * destination)
 void  MPU9255::readGyroData(int16_t * destination)
 {
 	uint8_t rawData[6];
-	
-	readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
+
+	readBytes(MPU9250_Address, GYRO_XOUT_H, 6, &rawData[0]);
 	destination[0] = (((int16_t)rawData[0] << 8) | rawData[1]);
 	destination[1] = (((int16_t)rawData[2] << 8) | rawData[3]);
 	destination[2] = (((int16_t)rawData[4] << 8) | rawData[5]);
@@ -139,8 +141,8 @@ void  MPU9255::readMagData(int16_t * destination)
 void  MPU9255::readAccelData(float * destination)
 {
 	uint8_t rawData[6];
-	
-	readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
+
+	readBytes(MPU9250_Address, ACCEL_XOUT_H, 6, &rawData[0]);
 	destination[0] = (((int16_t)rawData[0] << 8) | rawData[1]);
 	destination[1] = (((int16_t)rawData[2] << 8) | rawData[3]);
 	destination[2] = (((int16_t)rawData[4] << 8) | rawData[5]);
@@ -150,8 +152,8 @@ void  MPU9255::readAccelData(float * destination)
 void  MPU9255::readGyroData(float * destination)
 {
 	uint8_t rawData[6];
-	
-	readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
+
+	readBytes(MPU9250_Address, GYRO_XOUT_H, 6, &rawData[0]);
 	destination[0] = (((int16_t)rawData[0] << 8) | rawData[1]);
 	destination[1] = (((int16_t)rawData[2] << 8) | rawData[3]);
 	destination[2] = (((int16_t)rawData[4] << 8) | rawData[5]);
@@ -174,7 +176,7 @@ void  MPU9255::readMagData(float * destination)
 int16_t  MPU9255::readTempData()
 {
 	uint8_t rawData[2];
-	readBytes(MPU9250_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);
+	readBytes(MPU9250_Address, TEMP_OUT_H, 2, &rawData[0]);
 	return ((int16_t)rawData[0] << 8) | rawData[1];
 }
 
@@ -197,23 +199,23 @@ void  MPU9255::initAK8963(float * destination)
 /// inicjalizacja MPU9250
 void  MPU9255::initMPU9250()
 {
-	writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00);
+	writeByte(MPU9250_Address, PWR_MGMT_1, 0x00);
 	delay(100);
-	writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);
+	writeByte(MPU9250_Address, PWR_MGMT_1, 0x01);
 	delay(200);
-	writeByte(MPU9250_ADDRESS, CONFIG, 0x03);
-	writeByte(MPU9250_ADDRESS, SMPLRT_DIV, 0x04);
-	uint8_t c = readByte(MPU9250_ADDRESS, GYRO_CONFIG);
-	writeByte(MPU9250_ADDRESS, GYRO_CONFIG, c & ~0x02);
-	writeByte(MPU9250_ADDRESS, GYRO_CONFIG, c & ~0x18);
-	writeByte(MPU9250_ADDRESS, GYRO_CONFIG, c | Gscale << 3);
-	c = readByte(MPU9250_ADDRESS, ACCEL_CONFIG);
-	writeByte(MPU9250_ADDRESS, ACCEL_CONFIG, c & ~0x18);
-	writeByte(MPU9250_ADDRESS, ACCEL_CONFIG, c | Ascale << 3);
-	c = readByte(MPU9250_ADDRESS, ACCEL_CONFIG2);
-	writeByte(MPU9250_ADDRESS, ACCEL_CONFIG2, c & ~0x0F);
-	writeByte(MPU9250_ADDRESS, ACCEL_CONFIG2, c | 0x03);
-	writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x22);
-	writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x01);
+	writeByte(MPU9250_Address, CONFIG, 0x03);
+	writeByte(MPU9250_Address, SMPLRT_DIV, 0x04);
+	uint8_t c = readByte(MPU9250_Address, GYRO_CONFIG);
+	writeByte(MPU9250_Address, GYRO_CONFIG, c & ~0x02);
+	writeByte(MPU9250_Address, GYRO_CONFIG, c & ~0x18);
+	writeByte(MPU9250_Address, GYRO_CONFIG, c | Gscale << 3);
+	c = readByte(MPU9250_Address, ACCEL_CONFIG);
+	writeByte(MPU9250_Address, ACCEL_CONFIG, c & ~0x18);
+	writeByte(MPU9250_Address, ACCEL_CONFIG, c | Ascale << 3);
+	c = readByte(MPU9250_Address, ACCEL_CONFIG2);
+	writeByte(MPU9250_Address, ACCEL_CONFIG2, c & ~0x0F);
+	writeByte(MPU9250_Address, ACCEL_CONFIG2, c | 0x03);
+	writeByte(MPU9250_Address, INT_PIN_CFG, 0x22);
+	writeByte(MPU9250_Address, INT_ENABLE, 0x01);
 	delay(1000);
 }
